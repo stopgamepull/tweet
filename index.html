@@ -1,0 +1,1298 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XTweet</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="shortcut icon" href="images/XTW.png" type="image/png">
+  <style>
+    body {
+      padding: 50px 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgb(241 185 129 / 70%); /* Полупрозрачный черный */
+      border: 3px solid rgba(231, 93, 0, 0.3); /* Полупрозрачный фиолетовый */
+      border-radius: 12px;
+      margin-bottom: 50px;
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 16px; /* Отступ между элементами */
+    }
+
+    .flex-row input,
+    .flex-row select,
+    .flex-row button {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid rgba(231, 93, 0, 0.3); /* Полупрозрачный фиолетовый */
+      border-radius: 8px;
+      background-color: rgb(255, 255, 255); /* Темно-серый фон */
+      color: #000; /* Белый текст */
+      font-size: 16px;
+      outline: none;
+    }
+
+    .flex-row input::placeholder {
+      color: #000; /* Серый placeholder */
+    }
+
+    .flex-row select {
+      appearance: none; /* Убираем стандартный стиль select */
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+    }
+
+    .flex-row button {
+      background-color: #ff7b00; /* Фиолетовый */
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .flex-row button:hover {
+      background-color: #327188; /* Более светлый фиолетовый при наведении */
+    }
+
+    .flex-row input:focus,
+    .flex-row select:focus {
+      border-color: rgba(231, 93, 0, 0.3); /* Яркий фиолетовый при фокусе */
+    }
+
+    .mx-auto {
+      margin-top: 20px;
+    }
+
+    #nnn {
+      display: block;
+    }
+
+    #mmm {
+      display: none;
+      --tw-space-y-reverse: 0;
+      margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
+      margin-bottom: calc(2rem * var(--tw-space-y-reverse));
+      border-color: rgba(231, 93, 0, 0.3);
+      margin: 0 auto;
+      width: 400px;
+      height: 200px;
+      text-align: center;
+      padding-top: 80px;
+      border-radius: 12px;
+      border: 1px solid rgba(231, 93, 0, 0.3);
+      color: rgb(74 222 128 / var(--tw-text-opacity, 1));
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .selected-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .selected-item {
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border: 1px solid rgba(231, 93, 0, 0.3);
+      border-radius: 5px;
+    }
+    .selected-item button {
+      background: none;
+      border: none;
+      color: red;
+      cursor: pointer;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin: 50px 0;
+    }
+
+    .pagination button {
+      margin-right: 15px;
+      border: 1px solid rgba(231, 93, 0, 0.3);
+
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .activepag {
+      background: #28aad9 !important;
+    }
+
+    .beta {
+      position: absolute;
+      right: 33%;
+      top: 0;
+      cursor: pointer;
+      color: #d96f28 !important;
+    }
+
+    .relative {
+      position: relative;
+    }
+
+    .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: -30px; /* Положение тултипа относительно элемента .beta */
+      left: 50px;
+      border: 1px solid rgba(231, 93, 0, 0.3);
+      color: #000;
+      padding: 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .beta:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .asd {
+      color: #000;
+    }
+  </style></head>
+  
+  <body>
+    <div class="max-w-4xl mx-auto mb-12 text-center relative">
+      <h1 class="text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-green-300 to-blue-500 text-transparent bg-clip-text">
+        XTweet
+      </h1>
+      <div class="beta">
+        [BETA]<span class="tooltip">Public release date 18 February</span>
+      </div>
+      <div class="timer-container">
+        
+        <p style="width: 250px; margin: 0 auto;" class="text-sm text-gray-400">Catch new tweets before anyone else. Free to use <span id="countdown" class="text-xl mb-6 text-gray-300"></span></p>
+      </div>
+
+      <script>
+        // Целевая дата: 25 марта 2024 года 10:00 МСК
+        const targetDate = new Date("2025-03-25T10:00:00").getTime();
+
+        function updateCountdown() {
+          const now = new Date().getTime();
+          const distance = targetDate - now;
+
+          // Расчет дней, часов, минут и секунд
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor(
+            (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          const minutes = Math.floor(
+            (distance % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          // Отображение результата
+          document.getElementById(
+            "countdown"
+          ).innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+          // Если время истекло
+          if (distance < 0) {
+            clearInterval(countdownTimer);
+            document.getElementById("countdown").innerHTML = "Time's up!";
+          }
+        }
+
+        // Обновляем таймер каждую секунду
+        const countdownTimer = setInterval(updateCountdown, 1000);
+        updateCountdown(); // Первоначальный запуск
+      </script>
+
+      <style>
+        .timer-container {
+          text-align: center;
+        }
+        #countdown {
+          font-family: monospace;
+          font-weight: bold;
+          letter-spacing: 1px;
+        }
+      </style>
+    </div>
+    <div class="flex flex-col items-center gap-3">
+      <div class="flex items-center gap-4">
+        <a href="https://x.com/Xtweetdotnet" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-gray-400 hover:text-gray-300 transition-colors"><svg viewBox="0 0 24 24" aria-hidden="true" class="h-5 w-5 fill-current">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></a>
+        <span>$XTweet</span>
+        <!-- <a
+          href="https://t.me/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-gray-400 hover:text-gray-300 transition-colors"
+          ><svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            class="h-5 w-5 fill-current"
+          >
+            <path
+              d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"
+            ></path></svg
+          ><span>telegram</span></a
+        > -->
+      </div>
+      <div class="text-gray-500 text-sm"></div>
+    </div>
+    <div class="container">
+      <div class="flex-row">
+        <input type="text" id="usernameInput" placeholder="Enter username">
+
+        <select id="itemSelect">
+          <option value="" disabled="" selected="">Select usernames</option>
+          <!-- Options will be populated dynamically -->
+        </select>
+
+        <button onclick="saveSelection()">Save</button>
+      </div>
+
+      <div id="selectedItems" class="selected-items"></div>
+    </div>
+    <div id="nnn">
+      <div class="max-w-4xl mx-auto space-y-8" id="tweets-container">
+        <!-- Твиты будут вставлены сюда динамически -->
+      </div>
+
+      <div class="pagination">
+        <button onclick="changePage(1)" class="activepag">1</button>
+        <button onclick="changePage(2)">2</button>
+        <button onclick="changePage(3)">3</button>
+        <button onclick="changePage(4)">4</button>
+        <button onclick="">...</button>
+      </div>
+    </div>
+    <div id="mmm">
+      <h1>you are not eligible to use this function</h1>
+    </div>
+    <script>
+      const allItems = [
+        "elonmusk",
+        "stoolpresidente",
+        "bitcoin",
+        "jack",
+        "snowden",
+        "RealRossU",
+        "kanyewest",
+        "chooserich",
+        "coinbase",
+        "binance",
+        "MrBeast",
+        "brian_armstrong",
+        "Apple",
+        "VitalikButerin",
+        "a1lon9",
+        "adinross",
+        "phantom",
+        "joerogan",
+        "sama",
+        "erictrump",
+        "melaniatrump",
+        "aeyakovenko",
+        "DOGE",
+        "realDonaldTrump",
+        "realtrumpcoins1",
+        "Trump",
+        "TeamTrump",
+        "POTUS",
+        "Whitehouse",
+        "foxnews",
+        "whalewatchalert",
+        "cz_binance",
+        "orangie",
+        "DegenerateNews",
+        "Realalexjones",
+        "solana",
+        "frankdegods",
+        "phantom",
+        "Cobratate",
+        "Ashcryptoreal",
+      ];
+
+      let selectedItems = [...allItems]; // Все элементы изначально выбраны
+
+      // Инициализация выпадающего списка
+      const itemSelect = document.getElementById("itemSelect");
+      function populateSelect() {
+        itemSelect.innerHTML =
+          '<option value="" disabled selected>Select username</option>';
+        allItems.forEach((item) => {
+          if (!selectedItems.includes(item)) {
+            const option = document.createElement("option");
+            option.value = item;
+            option.textContent = item;
+            itemSelect.appendChild(option);
+          }
+        });
+      }
+
+      // Отображение выбранных элементов
+      const selectedItemsDiv = document.getElementById("selectedItems");
+      function renderSelectedItems() {
+        selectedItemsDiv.innerHTML = "";
+        selectedItems.forEach((item) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "selected-item";
+          itemDiv.innerHTML = `
+                    <span>${item}</span>
+                    <button onclick="removeItem('${item}')">×</button>
+                `;
+          selectedItemsDiv.appendChild(itemDiv);
+        });
+      }
+
+      // Удаление элемента из выбранных
+      function removeItem(item) {
+        selectedItems = selectedItems.filter((selected) => selected !== item);
+        renderSelectedItems();
+        populateSelect();
+      }
+
+      // Добавление элемента в выбранные
+      itemSelect.addEventListener("change", (event) => {
+        const selectedItem = event.target.value;
+        if (selectedItem && !selectedItems.includes(selectedItem)) {
+          selectedItems.push(selectedItem);
+          renderSelectedItems();
+          populateSelect();
+        }
+        event.target.value = ""; // Сброс выбора в селекте
+      });
+
+      // Сохранение (восстановление всех элементов)
+      function saveSelection() {
+        selectedItems = [...allItems]; // Восстанавливаем все элементы
+        renderSelectedItems();
+        populateSelect();
+      }
+
+      // Инициализация при загрузке страницы
+      renderSelectedItems();
+      populateSelect();
+
+      const tweets = [
+        // Ваши твиты в виде объектов
+        {
+          user: "Elon Musk (@elonmusk)",
+          link: "https://x.com/elonmusk/status/1889896827513868734",
+          in: "41 210 🔤",
+          out: "2 313 🔤",
+          content:
+            "Reuters was paid millions of dollars by the US government for “large scale social deception”. That is literally what it says on the purchase order! They’re a total scam. Just wow.",
+        },
+        {
+          user: "theb52bomber.eth @theb52bomber",
+          link: "https://x.com/theb52bomber/status/1890147086341148857",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 1�313 🔤",
+          content:
+            "I lost plenty on this coin and have never been more interested in a crypto outcome. I've seen every coin pump. I've seen every cointank. Have been a fan of @stoolpresidente since I got into thepizza biz. 🍕 Have had many imitate his one bite challenge. Thanksfor MCGA.",
+        },
+        {
+          user: "Binance @binance",
+          link: "https://x.com/binance/status/1890129023151349975",
+          in: "IN: 41�346 🔤",
+          out: "OUT: 2�444 🔤",
+          content:
+            "Master the art of spotting flags in crypto! Learn how to identify these powerful continuation patterns, use them to your advantage and combine flag patterns with indicators like RSI for more informed trading decisions.",
+        },
+        {
+          user: "Glenn Greenwald @ggreenwald",
+          link: "https://x.com/ggreenwald/status/1890088878566150266",
+          in: "IN: 41�780 🔤",
+          out: "OUT: 2�143 🔤",
+          content:
+            "The Secretary of Health and Human Services is a life-long Democrat and environmental lawyer, who spent his life fighting corporate waste dumping and regulatory capture by Big Pharma. Yet every Dem voted NO, with Liz Warren upset that suing drug companies cuts their profits.🤷‍♂️",
+        },
+        {
+          user: "toly @aeyakovenko",
+          link: "https://x.com/aeyakovenko/status/1890130958214680992",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 2�313 🔤",
+          content:
+            "Replying to @0xGumshoe @solana and @doodles Solana is already an ethereum L2 via the wormhole eigenlayer ain't that right @aeyakovenko @rajgokal",
+        },
+
+        {
+          user: "Bitcoin @Bitcoin",
+          link: "https://x.com/Bitcoin/status/1890072070018498685",
+          in: "IN: 41�966 🔤",
+          out: "OUT: 12�313 🔤",
+          content: "€91,899.12",
+        },
+        {
+          user: "alon @a1lon9",
+          link: "https://x.com/a1lon9/status/1890144726952878220",
+          in: "IN: 24�610 🔤",
+          out: "OUT: 2�124 🔤",
+          content:
+            "hyping up memecoin launches is a horrible idea they're less fair bc it gives an edge to those that are well equipped rather than those that are able to spot the opportunity if you want to launch a coin, launch it as early as possible building a chart = building community",
+        },
+        {
+          user: "Phantom @phantom",
+          link: "https://x.com/phantom/status/1890048971948818877",
+          in: "IN: 41�740 🔤",
+          out: "OUT: 2�456 🔤",
+          content: "You can now buy crypto in Phantom using MoonPay Balance ⚡",
+        },
+        {
+          user: "OpenAI @OpenAI",
+          link: "https://x.com/OpenAI/status/1889822643676913977",
+          in: "IN: 41�450 🔤",
+          out: "OUT: 2�453 🔤",
+          content:
+            "Two updates you'll like— 📁 OpenAI o1 and o3-mini now support both file & image uploads in ChatGPT ⬆️ We raised o3-mini-high limits by 7x for Plus users to up to 50 per day",
+        },
+        {
+          user: "Elon Musk (@elonmusk)",
+          link: "https://x.com/AutismCapital/status/1890131415683276875",
+          in: "IN: 41�1240 🔤",
+          out: "OUT: 2�1213 🔤",
+          content: `🚨REPORTER: "DOGE workers arrived at the IRS today. Do you expect to close the IRS?" LUTNICK: "Some day." 😂 TRUMP: "I think the IRS will be looked at just like everybody else. Everyone will be looked at. They're doing a hell of a job. Elon is building a force of super geniuses. They go talk to the people about their deals and people get tongue tied, they can't even talk, because these people get it. They're very smart people. We need smart people."`,
+        },
+        {
+          user: "Dave Portnoy @stoolpresidente",
+          link: "https://x.com/stoolpresidente/status/1890050841031090608",
+          in: "IN: 21�210 🔤",
+          out: "OUT: 12�313 🔤",
+          content:
+            "The thing I love about meme coins is I took this pic yesterday. Today there are like 5 meme coins to commemorate it. I mention it on #ddtg Suddenly 2500 own it. People getting rugged by Rugsies holders left and right. I bought it. Got rugged. What a world. #trenchland. As always buy these coins at your own risk. When you buy Rugsie don’t cry if people sell it and you lose.",
+        },
+        {
+          user: "Ross Ulbricht @RealRossU",
+          link: "https://x.com/RealRossU/status/1888299042146578925",
+          in: "IN: 1�510 🔤",
+          out: "OUT: 2�853 🔤",
+          content:
+            "I want to take a moment to publicly honor my mom and my wife, Lyn and Caroline, for the herculean effort they put into saving me from a life sentence. They worked side-by-side, day after day, for  years. Despite many setbacks and countless challenges, they never gave up. The amount of work it took to get me to where I am today is beyond what most people can probably imagine. My fellow prisoners often told me how fortunate I was to have a dedicated wife and mom like mine. Many people helped us along the way and we are deeply grateful to all of them. I would still be locked in a cell behind a prison wall were it not for all the support we received. THANK YOU!",
+        },
+        {
+          user: "Elon Musk (@elonmusk)",
+          link: "https://x.com/elonmusk/status/1889896827513868734",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 2�313 🔤",
+          content:
+            "Reuters was paid millions of dollars by the US government for “large scale social deception”. That is literally what it says on the purchase order! They’re a total scam. Just wow.",
+        },
+        {
+          user: "KANYE EAST @KanyeWestio",
+          link: "https://x.com/KanyeWestio/status/1890129674933879091",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 2�313 🔤",
+          content: "mentioned you in a post",
+        },
+        {
+          user: "Elon Musk (@elonmusk)",
+          link: "https://x.com/elonmusk/status/1890137244864004600",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 2�313 🔤",
+          content: "Congratulations @RobertKennedyJr !!",
+        },
+        {
+          user: "Bitcoin (@Bitcoin)",
+          link: "https://x.com/Bitcoin/status/1889892150499799257",
+          in: "IN: 12�439 🔤",
+          out: "OUT: 2�680 🔤",
+          content: "€93,426.36",
+        },
+        {
+          user: "Jack (@jack)",
+          link: "https://x.com/jack/status/1754045425674563841",
+          in: "IN: 13�156 🔤",
+          out: "OUT: 2�042 🔤",
+          content: "The future of social media is decentralized.",
+        },
+        {
+          user: "Snowden (@Snowden)",
+          link: "https://x.com/jack/status/1890099951025463431",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "do you want to be able to choose (and/or build) the algorithm that shows your X timeline?",
+        },
+        {
+          user: "Kanye West (@kanyewest)",
+          link: "https://x.com/KanyeWestio/status/1889635711546016196",
+          in: "IN: 31�068 🔤",
+          out: "OUT: 2�263 🔤",
+          content: "Gm",
+        },
+        {
+          user: "Coinbase (@coinbase)",
+          link: "https://x.com/coinbase/status/1890110787999658417",
+          in: "IN: 12�439 🔤",
+          out: "OUT: 2�680 🔤",
+          content:
+            "This weekend, the future of basketball is coming to @nbaallstar — and it weighs 17,000 pounds. And is powered by the blockchain. Feb. 14-16 NBA Crossover, San Francisco. Grab tickets here:",
+        },
+        {
+          user: "Binance (@binance)",
+          link: "https://x.com/binance/status/1890098621556957497",
+          in: "IN: 13�156 🔤",
+          out: "OUT: 2�042 🔤",
+          content:
+            "Looking for a smarter way to navigate the crypto markets? Our Auto-Invest Index-Linked Plans eliminate the stress of manual trading by automating diversified purchases, regardless of market conditions. Explore and unlock its potential today 👇",
+        },
+        {
+          user: "MrBeast (@MrBeast)",
+          link: "https://x.com/MrBeast/status/1890131192260747512",
+          in: "IN: 31�068 🔤",
+          out: "OUT: 2�263 🔤",
+          content:
+            "The grand finale of Beast Games is out, go see who won more money than anyone else in the history of entertainment! :D",
+        },
+        {
+          user: "Vitalik Buterin (@VitalikButerin)",
+          link: "https://x.com/VitalikButerin/status/1889995280524681393",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "This is a solid demonstration of Railgun's privacy pools mechanism ( https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4563364 ) working in practice, allowing Railgun to avoid serving proceeds of crime without using any snooping / backdoors. How it works: * Anyone can deposit into Railgun. * After you deposit, there is a 1 hour period during which various algorithms detect whether or not the deposit likely came from what the algorithms consider to be criminal activity. * If your deposit passes the filter, then after 1 hour you can use ZKPs to withdraw privately (but ideally wait longer to get a good-enough anonymity set). * If your deposit fails the filter, then you can only withdraw back to your own address. There is no risk that your funds will get frozen/seized, you just can't benefit from the privacy pool. If you disagree with Railgun's filters, anyone is free to fork and make their own pool with their own rules, though if you can't get reasonably wide public support you're going to have a tiny anonymity set. https://railway.xyz",
+        },
+        {
+          user: "Dave Portnoy @stoolpresidente",
+          link: "https://x.com/stoolpresidente/status/1889862984358567959",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "I didn’t do much work in the trenches today.   Just had to do a quick dump cause if you send stuff to my home address to get me to pump that’s an automatic dump.   #trenchwarfare",
+        },
+        {
+          user: "Bitcoin @Bitcoin",
+          link: "https://x.com/Bitcoin/status/1889529767939997880",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content: "€92,321.05",
+        },
+        {
+          user: "John Stossel @JohnStossel",
+          link: "https://x.com/JohnStossel/status/1885382675810181612",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            ".@TulsiGabbard was grilled at her confirmation hearing for refusing to call Edward Sen a traitor.I t she's right.After researching how Snowden revealed America’s deceit about spying, I conclude that what he did was mostly heroic.",
+        },
+        {
+          user: "Coinbase 🛡️@coinbase",
+          link: "https://x.com/coinbase/status/1890110787999658417",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "This weekend, the future of basketball is coming to  @nbaallstar — and it weighs 17,000 pounds. And is powered by the blockchain. Feb. 14-16 NBA Crossover, San Francisco. Grab tickets here: https://nbaevents.nba.com/nba-crossover",
+        },
+        {
+          user: "Binance @binance",
+          link: "https://x.com/binance/status/1889993179027460367",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "Join us on #Binance Square for an AMA with Rachel Chu and Jason Li, co-founders of Solayer! 🗓️ Feb 13, 2025 ⏰ 15:00 PM UTC",
+        },
+        {
+          user: "Brian Armstrong @brian_armstrong",
+          link: "https://x.com/brian_armstrong/status/1888987377827561719",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "The FAA should allow supersonic flight in America. Nothing says American dynamism more than everyone flying on supersonic jets everywhere. This boomless version would be a no brainer. We might even want to allow sonic booms in more situations, as they aren’t particularly dangerous.",
+        },
+        {
+          user: "vitalik.eth @VitalikButerin",
+          link: "https://x.com/VitalikButerin/status/1889364849433731151",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "QR codes are good though. My main beef with them is that I think the QR code should just contain the menu directly, skip the URL step. No more agonizing long waits for the thing to load. Max QR code size is 2953 bytes, plenty to fit a text menu, with modern gen-AI compression could even get some basic pics in.",
+        },
+        {
+          user: "adin @adinross",
+          link: "https://x.com/adinross/status/1858004397025788242",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "The Greatest, most irreplaceable People and future of America 🇺🇸 Dana, Elon, The Boss, Adin Ross Proud to be an American 🇺🇸 Ima frame this one day.",
+        },
+        {
+          user: "Mike Benz @MikeBenzCyber",
+          link: "https://x.com/MikeBenzCyber/status/1889760025037394233",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "6.5 hours of white-hot all new video content for you guys today, with the Joe Rogan episode and Shawn Ryan episode each dropping at the same time. I made sure to cover different angles in each appearance, so make sure you watch both 😇",
+        },
+        {
+          user: "Bitcoin (@Bitcoin)",
+          link: "https://x.com/Bitcoin/status/1889892150499799257",
+          in: "IN: 12�439 🔤",
+          out: "OUT: 2�680 🔤",
+          content: "€93,426.36",
+        },
+        {
+          user: "Jack (@jack)",
+          link: "https://x.com/jack/status/1754045425674563841",
+          in: "IN: 13�156 🔤",
+          out: "OUT: 2�042 🔤",
+          content: "The future of social media is decentralized.",
+        },
+        {
+          user: "Snowden (@Snowden)",
+          link: "https://x.com/jack/status/1890099951025463431",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "do you want to be able to choose (and/or build) the algorithm that shows your X timeline?",
+        },
+        {
+          user: "Kanye West (@kanyewest)",
+          link: "https://x.com/KanyeWestio/status/1889635711546016196",
+          in: "IN: 31�068 🔤",
+          out: "OUT: 2�263 🔤",
+          content: "Gm",
+        },
+        {
+          user: "Coinbase (@coinbase)",
+          link: "https://x.com/coinbase/status/1890110787999658417",
+          in: "IN: 12�439 🔤",
+          out: "OUT: 2�680 🔤",
+          content:
+            "This weekend, the future of basketball is coming to @nbaallstar — and it weighs 17,000 pounds. And is powered by the blockchain. Feb. 14-16 NBA Crossover, San Francisco. Grab tickets here:",
+        },
+        {
+          user: "Binance (@binance)",
+          link: "https://x.com/binance/status/1890098621556957497",
+          in: "IN: 13�156 🔤",
+          out: "OUT: 2�042 🔤",
+          content:
+            "Looking for a smarter way to navigate the crypto markets? Our Auto-Invest Index-Linked Plans eliminate the stress of manual trading by automating diversified purchases, regardless of market conditions. Explore and unlock its potential today 👇",
+        },
+        {
+          user: "MrBeast (@MrBeast)",
+          link: "https://x.com/MrBeast/status/1890131192260747512",
+          in: "IN: 31�068 🔤",
+          out: "OUT: 2�263 🔤",
+          content:
+            "The grand finale of Beast Games is out, go see who won more money than anyone else in the history of entertainment! :D",
+        },
+        {
+          user: "Sam Altman @sama",
+          link: "https://x.com/sama/status/1889679679696806103",
+          in: "IN: 31�068 🔤",
+          out: "OUT: 2�263 🔤",
+          content:
+            "i think we are going to initially offer 10 uses per month for chatgpt plus and 2 per month in the free tier, with the intent to scale these up over time. it probably is worth $1000 a month to some users but i'm excited to see what everyone does with it!",
+        },
+        {
+          user: "elonmusk (@elonmusk)",
+          link: "https://x.com/elonmusk/status/1593434810341453824",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Tesla AI Day was amazing! Can't wait to show you all the new advancements. 🚗💡",
+        },
+        {
+          user: "stoolpresidente (@stoolpresidente)",
+          link: "https://x.com/stoolpresidente/status/1892349876267437056",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "Big win for the boys tonight! Let’s keep it rolling 🏈🔥",
+        },
+        {
+          user: "bitcoin (@bitcoin)",
+          link: "https://x.com/bitcoin/status/1901948654851025923",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Another day, another ATH. The future is decentralized. #Bitcoin 🚀",
+        },
+        {
+          user: "jack (@jack)",
+          link: "https://x.com/jack/status/1893109871536201989",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "The future of the web is open, decentralized, and owned by the people. Let’s get to work. #Web5",
+        },
+        {
+          user: "snowden (@snowden)",
+          link: "https://x.com/snowden/status/1886547381924851712",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Privacy isn't just a right—it's the foundation of a free society. Protect it. 🕵️‍♂️",
+        },
+        {
+          user: "RealRossU (@RealRossU)",
+          link: "https://x.com/RealRossU/status/1903467284654632448",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "The journey continues. Can't wait to show you all the next chapter! #Onward",
+        },
+        {
+          user: "kanyewest (@kanyewest)",
+          link: "https://x.com/kanyewest/status/1896589227349140479",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "We’re making music again. The culture never stops. 🙏🏾🔥",
+        },
+        {
+          user: "chooserich (@chooserich)",
+          link: "https://x.com/chooserich/status/1901852348873105409",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "It's not just about money, it's about freedom and opportunity. 💡💸",
+        },
+        {
+          user: "coinbase (@coinbase)",
+          link: "https://x.com/coinbase/status/1885676384928849921",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "New to crypto? Here’s your guide to get started with Coinbase. Let's make your first trade! 🚀",
+        },
+        {
+          user: "binance (@binance)",
+          link: "https://x.com/binance/status/1898479307461103512",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "More trading pairs. More opportunities. More gains. Start now on Binance! 💥 #cryptotrading",
+        },
+        {
+          user: "MrBeast (@MrBeast)",
+          link: "https://x.com/MrBeast/status/1890131192260747512",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "The grand finale of Beast Games is out, go see who won more money than anyone else in the history of entertainment! :D",
+        },
+        {
+          user: "brian_armstrong (@brian_armstrong)",
+          link: "https://x.com/brian_armstrong/status/1893476492064025857",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Excited for the future of Web3! We are just getting started. #blockchain",
+        },
+        {
+          user: "Apple (@Apple)",
+          link: "https://x.com/Apple/status/1904676281937123328",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "The future of tech is now. Introducing the new iPhone—faster, smarter, and more intuitive than ever. #AppleEvent",
+        },
+        {
+          user: "VitalikButerin (@VitalikButerin)",
+          link: "https://x.com/VitalikButerin/status/1894186580760221186",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Ethereum is just getting started. Together, we’ll unlock the potential of Web3. #ETH",
+        },
+        {
+          user: "a1lon9 (@a1lon9)",
+          link: "https://x.com/a1lon9/status/1897623840126453760",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "AI is changing the game. Those who adapt will thrive. 🚀",
+        },
+        {
+          user: "adinross (@adinross)",
+          link: "https://x.com/adinross/status/1901254873629872128",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "Streaming tonight, we going crazy!!! Who’s pulling up? 🔥",
+        },
+        {
+          user: "phantom (@phantom)",
+          link: "https://x.com/phantom/status/1896328792651204608",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "DeFi is the future. Secure, fast, and easy transactions with Phantom Wallet. 🚀 #Solana",
+        },
+        {
+          user: "joerogan (@joerogan)",
+          link: "https://x.com/joerogan/status/1899182745623015425",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Another crazy episode is out now! We got deep into AI, consciousness, and the future of humanity. Check it out! 🎙️🔥",
+        },
+        {
+          user: "sama (@sama)",
+          link: "https://x.com/sama/status/1889679679696806103",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "i think we are going to initially offer 10 uses per month for chatgpt plus and 2 per month in the free tier, with the intent to scale these up over time. it probably is worth $1000 a month to some users but i'm excited to see what everyone does with it!",
+        },
+        {
+          user: "erictrump (@erictrump)",
+          link: "https://x.com/erictrump/status/1901534972183642112",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "America is strong when its people are free and proud! 🇺🇸",
+        },
+        {
+          user: "melaniatrump (@melaniatrump)",
+          link: "https://x.com/melaniatrump/status/1896123648170321925",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Honored to support those who serve and protect our great nation. 🇺🇸 #BeBest",
+        },
+        {
+          user: "aeyakovenko (@aeyakovenko)",
+          link: "https://x.com/aeyakovenko/status/1895321482013046789",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Solana keeps scaling! Faster, cheaper, and stronger every day. #Web3",
+        },
+        {
+          user: "DOGE (@DOGE)",
+          link: "https://x.com/DOGE/status/1903456927482138625",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "Much wow. So adoption. 🚀🐕 #DogeToTheMoon",
+        },
+        {
+          user: "realDonaldTrump (@realDonaldTrump)",
+          link: "https://x.com/realDonaldTrump/status/1898765321089325056",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "MAKE AMERICA GREAT AGAIN! 🇺🇸🔥",
+        },
+        {
+          user: "realtrumpcoins1 (@realtrumpcoins1)",
+          link: "https://x.com/realtrumpcoins1/status/1896743821098756096",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Trump Coin is here. The ultimate way to support the movement! 🚀",
+        },
+        {
+          user: "Trump (@Trump)",
+          link: "https://x.com/Trump/status/1899783126745392128",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "America first, always! 🇺🇸",
+        },
+        {
+          user: "TeamTrump (@TeamTrump)",
+          link: "https://x.com/TeamTrump/status/1901279648926357504",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "The movement is stronger than ever. Join us in making history! 🔥🇺🇸",
+        },
+        {
+          user: "POTUS (@POTUS)",
+          link: "https://x.com/POTUS/status/1902048394610206723",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "America is built on hope, resilience, and unity. Together, we move forward. 🇺🇸",
+        },
+        {
+          user: "Whitehouse (@Whitehouse)",
+          link: "https://x.com/Whitehouse/status/1902765913048127489",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Ensuring a brighter future for every American. That’s our commitment. 🇺🇸",
+        },
+        {
+          user: "foxnews (@foxnews)",
+          link: "https://x.com/foxnews/status/1903157629842099201",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Breaking news: Major developments unfolding now. Stay tuned. 📺",
+        },
+        {
+          user: "whalewatchalert (@whalewatchalert)",
+          link: "https://x.com/whalewatchalert/status/1903652938746516480",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "🚨 HUGE Bitcoin transaction detected! 5,000 BTC moved to an unknown wallet. Something big is coming? 🤔",
+        },
+        {
+          user: "cz_binance (@cz_binance)",
+          link: "https://x.com/cz_binance/status/1899543876421201920",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Ignore the FUD. Focus on building. The future is crypto. 🚀",
+        },
+        {
+          user: "orangie (@orangie)",
+          link: "https://x.com/orangie/status/1898762348201687040",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "Vibes are immaculate today. Stay winning, folks! ☀️💰",
+        },
+        {
+          user: "DegenerateNews (@DegenerateNews)",
+          link: "https://x.com/DegenerateNews/status/1901023857429682176",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content: "Crypto is wild today. Buckle up, Degen fam! 🚀💎",
+        },
+        {
+          user: "Realalexjones (@Realalexjones)",
+          link: "https://x.com/Realalexjones/status/1902653821763520512",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "The truth is out there, and they don’t want you to know it. Stay awake! ⚡️",
+        },
+      ];
+
+      const news = [
+        {
+          user: "Barack Obama (@BarackObama)",
+          link: "https://x.com/BarackObama/status/1593434810341453824",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Happy Thanksgiving! Today, we give thanks for our blessings and work to spread joy and kindness to others. 🦃🍁",
+        },
+        {
+          user: "Ross Ulbricht @RealRossU",
+          link: "https://x.com/RealRossU/status/1888299042146578925",
+          in: "IN: 1�510 🔤",
+          out: "OUT: 2�853 🔤",
+          content:
+            "I want to take a moment to publicly honor my mom and my wife, Lyn and Caroline, for the herculean effort they put into saving me from a life sentence. They worked side-by-side, day after day, for years. Despite many setbacks and countless challenges, they never gave up. The amount of work it took to get me to where I am today is beyond what most people can probably imagine. My fellow prisoners often told me how fortunate I was to have a dedicated wife and mom like mine. Many people helped us along the way and we are deeply grateful to all of them. I would still be locked in a cell behind a prison wall were it not for all the support we received. THANK YOU!",
+        },
+        {
+          user: "Elon Musk (@elonmusk)",
+          link: "https://x.com/elonmusk/status/1889896827513868734",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 2�313 🔤",
+          content:
+            "Reuters was paid millions of dollars by the US government for “large scale social deception”. That is literally what it says on the purchase order! They’re a total scam. Just wow.",
+        },
+        {
+          user: "KANYE EAST @KanyeWestio",
+          link: "https://x.com/KanyeWestio/status/1890129674933879091",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 2�313 🔤",
+          content: "mentioned you in a post",
+        },
+        {
+          user: "Elon Musk (@elonmusk)",
+          link: "https://x.com/elonmusk/status/1890137244864004600",
+          in: "IN: 41�210 🔤",
+          out: "OUT: 2�313 🔤",
+          content: "Congratulations @RobertKennedyJr !!",
+        },
+        {
+          user: "Bitcoin (@Bitcoin)",
+          link: "https://x.com/Bitcoin/status/1889892150499799257",
+          in: "IN: 12�439 🔤",
+          out: "OUT: 2�680 🔤",
+          content: "€93,426.36",
+        },
+        {
+          user: "Jack (@jack)",
+          link: "https://x.com/jack/status/1754045425674563841",
+          in: "IN: 13�156 🔤",
+          out: "OUT: 2�042 🔤",
+          content: "The future of social media is decentralized.",
+        },
+        {
+          user: "Snowden (@Snowden)",
+          link: "https://x.com/jack/status/1890099951025463431",
+          in: "IN: 39�386 🔤",
+          out: "OUT: 2�253 🔤",
+          content:
+            "do you want to be able to choose (and/or build) the algorithm that shows your X timeline?",
+        },
+        {
+          user: "Kanye West (@kanyewest)",
+          link: "https://x.com/KanyeWestio/status/1889635711546016196",
+          in: "IN: 31�068 🔤",
+          out: "OUT: 2�263 🔤",
+          content: "Gm",
+        },
+        {
+          user: "Donald J. Trump (@realDonaldTrump)",
+          link: "https://x.com/realDonaldTrump/status/1591852348873105409",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Big rally in Florida tonight. Let's keep America great! 🇺🇸🦅",
+        },
+        {
+          user: "Bill Gates (@BillGates)",
+          link: "https://x.com/BillGates/status/1598479307461103512",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Innovations in clean energy are crucial for our future. Excited to see the progress being made. 🌍🔋",
+        },
+        {
+          user: "NASA (@NASA)",
+          link: "https://x.com/NASA/status/1594186580760221186",
+          in: "IN: 31 068 🔤",
+          out: "OUT: 2 263 🔤",
+          content:
+            "Witness the beauty of our universe. New images from the James Webb Space Telescope are here. 🌌🔭",
+        },
+      ];
+
+      const tweetsPerPage = 20;
+      let currentPage = 1;
+
+      function displayTweets(page) {
+        const container = document.getElementById("tweets-container");
+        container.innerHTML = "";
+
+        const start = (page - 1) * tweetsPerPage;
+        const end = start + tweetsPerPage;
+        const tweetsToShow = tweets.slice(start, end);
+
+        tweetsToShow.forEach((tweet) => {
+          const tweetElement = document.createElement("div");
+          tweetElement.className =
+            "bg-black/40 border border-purple-500/30 rounded-lg p-6 hover:border-green-400/50 transition-colors";
+          tweetElement.innerHTML = `
+              <div class="flex justify-between items-start mb-4">
+                <div class="max-w-[70%]">
+                  <h2 class="text-xl font-mono text-green-400 break-words">${tweet.user}</h2>
+                  <a href="${tweet.link}" target="_blank" rel="noopener noreferrer" class="text-sm text-gray-400 hover:text-gray-300 mt-1 block break-words">${tweet.link}</a>
+                </div>
+                <div class="text-sm text-gray-400 font-mono bg-black/30 p-3 rounded">
+                  <div>IN: ${tweet.in}</div>
+                  <div>OUT: ${tweet.out}</div>
+                </div>
+              </div>
+              <div class="space-y-4">
+                <div class="bg-blue-900/30 p-4 rounded">
+                  <div class="space-y-2 text-gray-300">${tweet.content}</div>
+                </div>
+              </div>
+            `;
+          container.appendChild(tweetElement);
+        });
+      }
+
+      function changePage(page) {
+        currentPage = page;
+
+        let pages = document.querySelector(".pagination");
+        let pagesButtons = document.querySelectorAll("button");
+
+        pagesButtons.forEach((el) => {
+          if (el.textContent == currentPage) {
+            el.classList.remove("activepag");
+            el.classList.add("activepag");
+          } else {
+            el.classList.remove("activepag");
+          }
+        });
+
+        displayTweets(currentPage);
+      }
+
+      // Инициализация первой страницы
+      displayTweets(currentPage);
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .getElementById("usernameInput")
+          .addEventListener("input", function () {
+            const nnn = document.getElementById("nnn");
+            if (this.value.trim().length > 0) {
+              nnn.style.display = "none";
+              mmm.style.display = "block";
+            } else {
+              nnn.style.display = "block";
+              mmm.style.display = "none";
+            }
+          });
+
+        const tweetsContainer = document.getElementById("tweets-container");
+
+        if (!tweetsContainer) {
+          console.error("tweets-container не найден в DOM");
+          return;
+        }
+
+        const news = [
+          {
+            user: "Barack Obama (@BarackObama)",
+            link: "https://x.com/BarackObama/status/1593434810341453824",
+            in: "IN: 31 068 🔤",
+            out: "OUT: 2 263 🔤",
+            content:
+              "Happy Thanksgiving! Today, we give thanks for our blessings and work to spread joy and kindness to others. 🦃🍁",
+          },
+          {
+            user: "Ross Ulbricht @RealRossU",
+            link: "https://x.com/RealRossU/status/1888299042146578925",
+            in: "IN: 1�510 🔤",
+            out: "OUT: 2�853 🔤",
+            content:
+              "I want to take a moment to publicly honor my mom and my wife, Lyn and Caroline, for the herculean effort they put into saving me from a life sentence. They worked side-by-side, day after day, for years. Despite many setbacks and countless challenges, they never gave up. The amount of work it took to get me to where I am today is beyond what most people can probably imagine. My fellow prisoners often told me how fortunate I was to have a dedicated wife and mom like mine. Many people helped us along the way and we are deeply grateful to all of them. I would still be locked in a cell behind a prison wall were it not for all the support we received. THANK YOU!",
+          },
+          {
+            user: "Elon Musk (@elonmusk)",
+            link: "https://x.com/elonmusk/status/1889896827513868734",
+            in: "IN: 41�210 🔤",
+            out: "OUT: 2�313 🔤",
+            content:
+              "Reuters was paid millions of dollars by the US government for “large scale social deception”. That is literally what it says on the purchase order! They’re a total scam. Just wow.",
+          },
+          {
+            user: "KANYE EAST @KanyeWestio",
+            link: "https://x.com/KanyeWestio/status/1890129674933879091",
+            in: "IN: 41�210 🔤",
+            out: "OUT: 2�313 🔤",
+            content: "mentioned you in a post",
+          },
+          {
+            user: "Elon Musk (@elonmusk)",
+            link: "https://x.com/elonmusk/status/1890137244864004600",
+            in: "IN: 41�210 🔤",
+            out: "OUT: 2�313 🔤",
+            content: "Congratulations @RobertKennedyJr !!",
+          },
+          {
+            user: "Bitcoin (@Bitcoin)",
+            link: "https://x.com/Bitcoin/status/1889892150499799257",
+            in: "IN: 12�439 🔤",
+            out: "OUT: 2�680 🔤",
+            content: "€93,426.36",
+          },
+          {
+            user: "Jack (@jack)",
+            link: "https://x.com/jack/status/1754045425674563841",
+            in: "IN: 13�156 🔤",
+            out: "OUT: 2�042 🔤",
+            content: "The future of social media is decentralized.",
+          },
+          {
+            user: "Snowden (@Snowden)",
+            link: "https://x.com/jack/status/1890099951025463431",
+            in: "IN: 39�386 🔤",
+            out: "OUT: 2�253 🔤",
+            content:
+              "do you want to be able to choose (and/or build) the algorithm that shows your X timeline?",
+          },
+          {
+            user: "Kanye West (@kanyewest)",
+            link: "https://x.com/KanyeWestio/status/1889635711546016196",
+            in: "IN: 31�068 🔤",
+            out: "OUT: 2�263 🔤",
+            content: "Gm",
+          },
+          {
+            user: "Donald J. Trump (@realDonaldTrump)",
+            link: "https://x.com/realDonaldTrump/status/1591852348873105409",
+            in: "IN: 31 068 🔤",
+            out: "OUT: 2 263 🔤",
+            content:
+              "Big rally in Florida tonight. Let's keep America great! 🇺🇸🦅",
+          },
+          {
+            user: "Bill Gates (@BillGates)",
+            link: "https://x.com/BillGates/status/1598479307461103512",
+            in: "IN: 31 068 🔤",
+            out: "OUT: 2 263 🔤",
+            content:
+              "Innovations in clean energy are crucial for our future. Excited to see the progress being made. 🌍🔋",
+          },
+          {
+            user: "NASA (@NASA)",
+            link: "https://x.com/NASA/status/1594186580760221186",
+            in: "IN: 31 068 🔤",
+            out: "OUT: 2 263 🔤",
+            content:
+              "Witness the beauty of our universe. New images from the James Webb Space Telescope are here. 🌌🔭",
+          },
+        ];
+
+        function addTweetToDOM(tweet) {
+          const tweetElement = document.createElement("div");
+          tweetElement.className =
+            "bg-black/40 border border-purple-500/30 rounded-lg p-6 hover:border-green-400/50 transition-colors opacity-0";
+          tweetElement.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+              <div class="max-w-[70%]">
+                <h2 class="text-xl font-mono text-green-400 break-words">${tweet.user}</h2>
+                <a href="${tweet.link}" target="_blank" rel="noopener noreferrer" class="text-sm text-gray-400 hover:text-gray-300 mt-1 block break-words">${tweet.link}</a>
+              </div>
+              <div class="text-sm text-gray-400 font-mono bg-black/30 p-3 rounded">
+                <div>IN: ${tweet.in}</div>
+                <div>OUT: ${tweet.out}</div>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div class="bg-blue-900/30 p-4 rounded">
+                <div class="space-y-2 text-gray-300">${tweet.content}</div>
+              </div>
+            </div>
+          `;
+          tweetsContainer.prepend(tweetElement);
+
+          // Плавное появление
+          setTimeout(() => {
+            tweetElement.style.opacity = "1";
+            tweetElement.style.transition = "opacity 0.5s ease-in-out";
+          }, 100);
+        }
+
+        function displayTweetsWithDelay() {
+          const storedTweets =
+            JSON.parse(localStorage.getItem("tweets")) || news;
+
+          storedTweets.forEach((tweet, index) => {
+            setTimeout(() => {
+              addTweetToDOM(tweet);
+            }, index * 30000); // Интервал 2 секунды между добавлениями
+          });
+        }
+
+        function addNewTweet() {
+          const randomIndex = Math.floor(Math.random() * news.length);
+          const newTweet = news[randomIndex];
+
+          let storedTweets = JSON.parse(localStorage.getItem("tweets")) || [];
+          storedTweets.unshift(newTweet);
+          localStorage.setItem("tweets", JSON.stringify(storedTweets));
+
+          addTweetToDOM(newTweet);
+        }
+
+        displayTweetsWithDelay();
+        setInterval(addNewTweet, 30000);
+      });
+    </script>
+  
+
+</body></html>
